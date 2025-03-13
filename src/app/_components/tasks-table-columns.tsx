@@ -1,6 +1,6 @@
 "use client";
 
-import { type Task, tasks } from "@/db/schema";
+import { type Task, tasks } from "@/db/schemas/tasks";
 import type { DataTableRowAction } from "@/types";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Ellipsis } from "lucide-react";

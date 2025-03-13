@@ -1,5 +1,5 @@
-import type { Task } from '@/db/schema'
-import { tasks } from '@/db/schema'
+import type { Task } from '@/db/schemas/tasks'
+import { tasks } from '@/db/schemas/tasks'
 import { generateId } from '@/lib/id'
 import { faker } from '@faker-js/faker'
 import {

@@ -1,6 +1,6 @@
 'use client'
 
-import type { Task } from '@/db/schema'
+import type { Task } from '@/db/schemas/tasks'
 import type {
   DataTableAdvancedFilterField,
   DataTableFilterField,
@@ -15,7 +15,7 @@ import type {
 import { DataTable } from '@/components/data-table/data-table'
 import { DataTableAdvancedToolbar } from '@/components/data-table/data-table-advanced-toolbar'
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar'
-import { tasks } from '@/db/schema'
+import { tasks } from '@/db/schemas/tasks'
 import { useDataTable } from '@/hooks/use-data-table'
 import { toSentenceCase } from '@/lib/utils'
 

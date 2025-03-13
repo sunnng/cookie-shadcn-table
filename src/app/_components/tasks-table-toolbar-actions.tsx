@@ -1,6 +1,6 @@
 "use client";
 
-import type { Task } from "@/db/schema";
+import type { Task } from "@/db/schemas/tasks";
 import type { Table } from "@tanstack/react-table";
 import { Download } from "lucide-react";
 

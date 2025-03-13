@@ -1,4 +1,4 @@
-import { type Task, tasks } from "@/db/schema";
+import { type Task, tasks } from "@/db/schemas/tasks";
 import {
   createSearchParamsCache,
   parseAsArrayOf,

@@ -4,7 +4,8 @@ import { sql } from 'drizzle-orm'
 
 import { boolean, timestamp, varchar } from 'drizzle-orm/mysql-core'
 
-export const tasks = mysqlTable('tasks', {
+
+export const guildBattleRecords = mysqlTable('guild_battle_records', {
   id: varchar('id', { length: 30 })
     .$defaultFn(() => generateId())
     .primaryKey(),
@@ -22,6 +23,12 @@ export const tasks = mysqlTable('tasks', {
   })
     .notNull()
     .default('bug'),
+    bossType: varchar('label', {
+      length: 30,
+      enum: ['bug', 'feature', 'enhancement', 'documentation'],
+    })
+      .notNull()
+      .default('bug'),
   priority: varchar('priority', {
     length: 30,
     enum: ['low', 'medium', 'high'],
@@ -35,5 +42,5 @@ export const tasks = mysqlTable('tasks', {
     .$onUpdate(() => new Date()),
 })
 
-export type Task = typeof tasks.$inferSelect
-export type NewTask = typeof tasks.$inferInsert
+export type GuildBattleRecords = typeof guildBattleRecords.$inferSelect
+export type NewGuildBattleRecords = typeof guildBattleRecords.$inferInsert

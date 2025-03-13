@@ -1,8 +1,8 @@
-import type { Task } from '@/db/schema'
+import type { Task } from '@/db/schemas/tasks'
 
 import type { GetTasksSchema } from './validations'
 import { db } from '@/db'
-import { tasks } from '@/db/schema'
+import { tasks } from '@/db/schemas/tasks'
 import { filterColumns } from '@/lib/filter-columns'
 
 import { unstable_cache } from '@/lib/unstable-cache'

@@ -1,6 +1,6 @@
 "use client";
 
-import { tasks } from "@/db/schema";
+import { tasks } from "@/db/schemas/tasks";
 import type * as React from "react";
 import type { FieldPath, FieldValues, UseFormReturn } from "react-hook-form";
 

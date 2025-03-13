@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db/index";
-import { type Task, tasks } from "@/db/schema";
+import { type Task, tasks } from "@/db/schemas/tasks";
 import { takeFirstOrThrow } from "@/db/utils";
 import { asc, eq, inArray, not } from "drizzle-orm";
 import { customAlphabet } from "nanoid";

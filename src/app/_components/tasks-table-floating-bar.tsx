@@ -1,4 +1,4 @@
-import { type Task, tasks } from "@/db/schema";
+import { type Task, tasks } from "@/db/schemas/tasks";
 import { SelectTrigger } from "@radix-ui/react-select";
 import type { Table } from "@tanstack/react-table";
 import {

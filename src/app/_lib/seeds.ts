@@ -1,6 +1,6 @@
-import type { Task } from '@/db/schema'
+import type { Task } from '@/db/schemas/tasks'
 import { db } from '@/db/index'
-import { tasks } from '@/db/schema'
+import { tasks } from '@/db/schemas/tasks'
 
 import { generateRandomTask } from './utils'
 
