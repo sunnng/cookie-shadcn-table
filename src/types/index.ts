@@ -11,6 +11,7 @@ export type Prettify<T> = {
 
 export type StringKeyOf<TData> = Extract<keyof TData, string>
 
+// nextjs app-router search params type
 export interface SearchParams {
   [key: string]: string | string[] | undefined
 }

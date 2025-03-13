@@ -1,10 +1,10 @@
-import { pgTable } from '@/db/utils'
+import { mysqlTable } from '@/db/utils'
 import { generateId } from '@/lib/id'
 import { sql } from 'drizzle-orm'
 
-import { boolean, timestamp, varchar } from 'drizzle-orm/pg-core'
+import { boolean, timestamp, varchar } from 'drizzle-orm/mysql-core'
 
-export const tasks = pgTable('tasks', {
+export const tasks = mysqlTable('tasks', {
   id: varchar('id', { length: 30 })
     .$defaultFn(() => generateId())
     .primaryKey(),

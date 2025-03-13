@@ -6,6 +6,8 @@ import { ThemeProvider } from '@/components/providers'
 import { fontMono, fontSans } from '@/lib/fonts'
 import { cn } from '@/lib/utils'
 
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
+
 import '@/styles/globals.css'
 
 export const metadata: Metadata = {

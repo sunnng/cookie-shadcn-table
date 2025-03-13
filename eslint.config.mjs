@@ -6,5 +6,6 @@ export default antfu({
   rules: {
     'react/no-nested-components': 'off',
     'node/prefer-global/process': 'off',
+    'unused-imports/no-unused-vars': 'off',
   },
 })

@@ -6,7 +6,7 @@ import type { AnyColumn } from 'drizzle-orm'
 import { databasePrefix } from '@/lib/constants'
 import { not, sql } from 'drizzle-orm'
 
-import { pgTableCreator } from 'drizzle-orm/pg-core'
+import { mysqlTableCreator } from 'drizzle-orm/mysql-core'
 
 /**
  * This lets us use the multi-project schema feature of Drizzle ORM. So the same
@@ -14,7 +14,7 @@ import { pgTableCreator } from 'drizzle-orm/pg-core'
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const pgTable = pgTableCreator(name => `${databasePrefix}_${name}`)
+export const mysqlTable = mysqlTableCreator(name => `${databasePrefix}_${name}`)
 
 export function takeFirstOrNull<TData>(data: TData[]) {
   return data[0] ?? null
