@@ -1,218 +1,75 @@
-"use server";
+import type { CreateGuildBattleRecordSchema } from './validations'
 
-import { db } from "@/db/index";
-import { type Task, tasks } from "@/db/schemas/tasks";
-import { takeFirstOrThrow } from "@/db/utils";
-import { asc, eq, inArray, not } from "drizzle-orm";
-import { customAlphabet } from "nanoid";
-import { revalidateTag, unstable_noStore } from "next/cache";
+import { db } from '@/db'
+import { guildBattleRecords } from '@/db/schemas/guild'
 
-import { getErrorMessage } from "@/lib/handle-error";
+import { eq } from 'drizzle-orm'
 
-import { generateRandomTask } from "./utils";
-import type { CreateTaskSchema, UpdateTaskSchema } from "./validations";
+import { convertToDbTimestamp } from './validations'
 
-export async function seedTasks(input: { count: number }) {
-  const count = input.count ?? 100;
+// 随机生成公会讨伐战记录
 
+// 创建公会讨伐战记录
+export async function createGuildBattleRecord(input: CreateGuildBattleRecordSchema) {
   try {
-    const allTasks: Task[] = [];
+    // 转换时间戳
+    const participationTime = convertToDbTimestamp(input.participationTime)
 
-    for (let i = 0; i < count; i++) {
-      allTasks.push(generateRandomTask());
+    // 验证转换后的时间戳
+    if (!participationTime) {
+      throw new Error('无效的参与时间格式')
     }
 
-    await db.delete(tasks);
-
-    console.log("📝 Inserting tasks", allTasks.length);
-
-    await db.insert(tasks).values(allTasks).onConflictDoNothing();
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-export async function createTask(input: CreateTaskSchema) {
-  unstable_noStore();
-  try {
-    await db.transaction(async (tx) => {
-      const newTask = await tx
-        .insert(tasks)
-        .values({
-          code: `TASK-${customAlphabet("0123456789", 4)()}`,
-          title: input.title,
-          status: input.status,
-          label: input.label,
-          priority: input.priority,
-        })
-        .returning({
-          id: tasks.id,
-        })
-        .then(takeFirstOrThrow);
-
-      // Delete a task to keep the total number of tasks constant
-      await tx.delete(tasks).where(
-        eq(
-          tasks.id,
-          (
-            await tx
-              .select({
-                id: tasks.id,
-              })
-              .from(tasks)
-              .limit(1)
-              .where(not(eq(tasks.id, newTask.id)))
-              .orderBy(asc(tasks.createdAt))
-              .then(takeFirstOrThrow)
-          ).id,
-        ),
-      );
-    });
-
-    revalidateTag("tasks");
-    revalidateTag("task-status-counts");
-    revalidateTag("task-priority-counts");
-
-    return {
-      data: null,
-      error: null,
-    };
-  } catch (err) {
-    return {
-      data: null,
-      error: getErrorMessage(err),
-    };
-  }
-}
-
-export async function updateTask(input: UpdateTaskSchema & { id: string }) {
-  unstable_noStore();
-  try {
-    const data = await db
-      .update(tasks)
-      .set({
-        title: input.title,
-        label: input.label,
-        status: input.status,
-        priority: input.priority,
+    // 插入记录
+    const [insertedId] = await db
+      .insert(guildBattleRecords)
+      .values({
+        ...input,
+        participationTime,
       })
-      .where(eq(tasks.id, input.id))
-      .returning({
-        status: tasks.status,
-        priority: tasks.priority,
-      })
-      .then(takeFirstOrThrow);
+      .$returningId()
 
-    revalidateTag("tasks");
-    if (data.status === input.status) {
-      revalidateTag("task-status-counts");
-    }
-    if (data.priority === input.priority) {
-      revalidateTag("task-priority-counts");
-    }
+    // 获取插入的记录
+    const [record] = await db
+      .select()
+      .from(guildBattleRecords)
+      .where(eq(guildBattleRecords.id, insertedId.id))
 
     return {
-      data: null,
+      success: true,
+      data: record,
       error: null,
-    };
-  } catch (err) {
-    return {
-      data: null,
-      error: getErrorMessage(err),
-    };
+    }
   }
-}
+  catch (err) {
+    // 处理特定类型的错误
+    if (err instanceof Error) {
+      // 处理唯一索引冲突
+      if (err.message.includes('Duplicate entry')) {
+        return {
+          success: false,
+          data: null,
+          error: '该记录已存在，请勿重复提交',
+        }
+      }
 
-export async function updateTasks(input: {
-  ids: string[];
-  label?: Task["label"];
-  status?: Task["status"];
-  priority?: Task["priority"];
-}) {
-  unstable_noStore();
-  try {
-    const data = await db
-      .update(tasks)
-      .set({
-        label: input.label,
-        status: input.status,
-        priority: input.priority,
-      })
-      .where(inArray(tasks.id, input.ids))
-      .returning({
-        status: tasks.status,
-        priority: tasks.priority,
-      })
-      .then(takeFirstOrThrow);
-
-    revalidateTag("tasks");
-    if (data.status === input.status) {
-      revalidateTag("task-status-counts");
-    }
-    if (data.priority === input.priority) {
-      revalidateTag("task-priority-counts");
+      // 处理其他数据库错误
+      if (err.message.includes('SQL')) {
+        console.error('数据库操作错误:', err)
+        return {
+          success: false,
+          data: null,
+          error: '数据库操作失败，请稍后重试',
+        }
+      }
     }
 
+    // 处理其他未知错误
+    console.error('创建记录时发生错误:', err)
     return {
+      success: false,
       data: null,
-      error: null,
-    };
-  } catch (err) {
-    return {
-      data: null,
-      error: getErrorMessage(err),
-    };
-  }
-}
-
-export async function deleteTask(input: { id: string }) {
-  unstable_noStore();
-  try {
-    await db.transaction(async (tx) => {
-      await tx.delete(tasks).where(eq(tasks.id, input.id));
-
-      // Create a new task for the deleted one
-      await tx.insert(tasks).values(generateRandomTask());
-    });
-
-    revalidateTag("tasks");
-    revalidateTag("task-status-counts");
-    revalidateTag("task-priority-counts");
-
-    return {
-      data: null,
-      error: null,
-    };
-  } catch (err) {
-    return {
-      data: null,
-      error: getErrorMessage(err),
-    };
-  }
-}
-
-export async function deleteTasks(input: { ids: string[] }) {
-  unstable_noStore();
-  try {
-    await db.transaction(async (tx) => {
-      await tx.delete(tasks).where(inArray(tasks.id, input.ids));
-
-      // Create new tasks for the deleted ones
-      await tx.insert(tasks).values(input.ids.map(() => generateRandomTask()));
-    });
-
-    revalidateTag("tasks");
-    revalidateTag("task-status-counts");
-    revalidateTag("task-priority-counts");
-
-    return {
-      data: null,
-      error: null,
-    };
-  } catch (err) {
-    return {
-      data: null,
-      error: getErrorMessage(err),
-    };
+      error: '创建记录失败，请稍后重试',
+    }
   }
 }

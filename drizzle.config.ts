@@ -4,7 +4,7 @@ import { env } from '@/env.js'
 import { databasePrefix } from '@/lib/constants'
 
 export default {
-  schema: './src/db/schema',
+  schema: './src/db/schemas',
   dialect: 'mysql',
   out: './drizzle',
   dbCredentials: {

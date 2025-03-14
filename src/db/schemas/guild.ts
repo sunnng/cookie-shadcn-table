@@ -2,45 +2,38 @@ import { mysqlTable } from '@/db/utils'
 import { generateId } from '@/lib/id'
 import { sql } from 'drizzle-orm'
 
-import { boolean, timestamp, varchar } from 'drizzle-orm/mysql-core'
+import { int, timestamp, uniqueIndex, varchar } from 'drizzle-orm/mysql-core'
 
-
+// 公会讨伐战记录表
 export const guildBattleRecords = mysqlTable('guild_battle_records', {
   id: varchar('id', { length: 30 })
     .$defaultFn(() => generateId())
     .primaryKey(),
-  code: varchar('code', { length: 128 }).notNull().unique(),
-  title: varchar('title', { length: 128 }),
-  status: varchar('status', {
+  participantName: varchar('participantName', { length: 128 }).notNull(),
+  bossType: varchar('bossType', {
     length: 30,
-    enum: ['todo', 'in-progress', 'done', 'canceled'],
+    enum: ['结块的甘草海深渊', '命运大天使', '红丝绒蛋糕龙'],
   })
-    .notNull()
-    .default('todo'),
-  label: varchar('label', {
-    length: 30,
-    enum: ['bug', 'feature', 'enhancement', 'documentation'],
-  })
-    .notNull()
-    .default('bug'),
-    bossType: varchar('label', {
-      length: 30,
-      enum: ['bug', 'feature', 'enhancement', 'documentation'],
-    })
-      .notNull()
-      .default('bug'),
-  priority: varchar('priority', {
-    length: 30,
-    enum: ['low', 'medium', 'high'],
-  })
-    .notNull()
-    .default('low'),
-  archived: boolean('archived').notNull().default(false),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+    .notNull(),
+  damage: int('damage').notNull(),
+  participationTime: timestamp('participationTime').notNull(),
+  combatPower: int('combatPower').notNull(),
+  seasonName: varchar('seasonName', { length: 128 }).notNull(),
+  guildName: varchar('guildName', { length: 128 }).notNull(),
+  createdAt: timestamp('created_at').default(sql`current_timestamp`).notNull(),
   updatedAt: timestamp('updated_at')
     .default(sql`current_timestamp`)
     .$onUpdate(() => new Date()),
-})
+}, table => [
+  uniqueIndex('battle_record_unique_idx').on(
+    table.participantName,
+    table.guildName,
+    table.seasonName,
+    table.damage,
+    table.bossType,
+    table.combatPower,
+  ),
+])
 
 export type GuildBattleRecords = typeof guildBattleRecords.$inferSelect
 export type NewGuildBattleRecords = typeof guildBattleRecords.$inferInsert
