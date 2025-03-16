@@ -1,3 +1,5 @@
+'use server'
+
 import type { CreateGuildBattleRecordSchema } from './validations'
 
 import { db } from '@/db'

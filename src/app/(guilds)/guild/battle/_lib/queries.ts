@@ -85,7 +85,8 @@ export async function getRecords(input: GetGuildBattleRecordSchema) {
     },
     [JSON.stringify(input)],
     {
-      revalidate: 3600,
+      // 3600-3900秒随机过期
+      revalidate: 3600 + Math.floor(Math.random() * 300),
       tags: ['tasks'],
     },
   )()
