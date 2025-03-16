@@ -7,9 +7,7 @@ import type {
   DataTableRowAction,
 } from '@/types'
 import type {
-  getTaskPriorityCounts,
-  getTasks,
-  getTaskStatusCounts,
+  getRecords,
 } from '../_lib/queries'
 
 import { DataTable } from '@/components/data-table/data-table'
@@ -21,7 +19,7 @@ import { toSentenceCase } from '@/lib/utils'
 
 import * as React from 'react'
 import { getPriorityIcon, getStatusIcon } from '../_lib/utils'
-import { DeleteTasksDialog } from './delete-tasks-dialog'
+import { DeleteTasksDialog } from './delete-records-dialog'
 import { useFeatureFlags } from './feature-flags-provider'
 import { getColumns } from './tasks-table-columns'
 import { TasksTableFloatingBar } from './tasks-table-floating-bar'
@@ -31,9 +29,7 @@ import { UpdateTaskSheet } from './update-task-sheet'
 interface TasksTableProps {
   promises: Promise<
     [
-      Awaited<ReturnType<typeof getTasks>>,
-      Awaited<ReturnType<typeof getTaskStatusCounts>>,
-      Awaited<ReturnType<typeof getTaskPriorityCounts>>,
+      Awaited<ReturnType<typeof getRecords>>,
     ]
   >
 }
